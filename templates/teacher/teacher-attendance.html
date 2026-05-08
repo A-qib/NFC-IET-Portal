@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}Mark Attendance{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Mark Attendance</h1>
+    <p class="page-sub">{{ section_info.course_name }} — Section {{ section_info.section_label }} &nbsp;·&nbsp; {{ section_info.semester }} {{ section_info.year }}</p>
+  </div>
+  <div style="display:flex;gap:8px">
+    <a href="{{ url_for('teacher_dashboard') }}" class="btn-sm">← Back</a>
+    <a href="{{ url_for('print_attendance', section_id=section_id) }}" target="_blank" class="btn-sm">🖨 Print Sheet</a>
+  </div>
+</div>
+
+<div class="card">
+  <form method="POST">
+    <div class="form-row" style="padding:1rem 1rem 0">
+      <div class="form-group" style="max-width:200px">
+        <label>Date</label>
+        <input type="date" name="date" value="{{ today }}" required/>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr><th>Roll No</th><th>Student Name</th><th>Overall %</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          {% for st in students %}
+          <tr>
+            <td><code>{{ st.roll_no }}</code></td>
+            <td>{{ st.student_name }}</td>
+            <td>
+              <span class="badge {% if st.overall_pct < 75 %}badge-red{% else %}badge-green{% endif %}">
+                {{ "%.1f"|format(st.overall_pct) }}%
+              </span>
+            </td>
+            <td>
+              <div class="radio-group">
+                <label class="radio-label present">
+                  <input type="radio" name="status_{{ st.student_id }}" value="present"
+                    {% if st.todays_status == 'present' %}checked{% endif %}/> Present
+                </label>
+                <label class="radio-label absent">
+                  <input type="radio" name="status_{{ st.student_id }}" value="absent"
+                    {% if st.todays_status == 'absent' %}checked{% endif %}/> Absent
+                </label>
+                <label class="radio-label late">
+                  <input type="radio" name="status_{{ st.student_id }}" value="late"
+                    {% if st.todays_status == 'late' %}checked{% endif %}/> Late
+                </label>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" class="text-muted text-center" style="padding:2rem">No students enrolled.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if students %}
+    <div style="padding:1rem">
+      <button type="submit" class="btn-primary">Save Attendance</button>
+    </div>
+    {% endif %}
+  </form>
+</div>
+
+{% endblock %}

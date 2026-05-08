@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — Student{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Good day, {{ student.name.split()[0] }} 👋</h1>
+    <p class="page-sub">{{ student.roll_no }} &nbsp;·&nbsp; {{ student.program }} &nbsp;·&nbsp; Semester {{ student.semester }}</p>
+  </div>
+</div>
+
+{% if shortages %}
+<div class="alert alert-error">
+  ⚠ Attendance shortage in {{ shortages|length }} subject(s)! Check your attendance page immediately.
+</div>
+{% endif %}
+
+<!-- Stats Row -->
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="stat-value">{{ "%.2f"|format(cgpa) }}</div>
+    <div class="stat-label">Current CGPA</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">{{ courses|length }}</div>
+    <div class="stat-label">Enrolled Courses</div>
+  </div>
+  <div class="stat-card {% if fee and fee.status == 'paid' %}stat-green{% elif fee and fee.status == 'overdue' %}stat-red{% endif %}">
+    <div class="stat-value">{{ fee.status | upper if fee else 'N/A' }}</div>
+    <div class="stat-label">Fee Status</div>
+  </div>
+  <div class="stat-card {% if shortages %}stat-red{% else %}stat-green{% endif %}">
+    <div class="stat-value">{{ shortages|length }}</div>
+    <div class="stat-label">Shortage Alerts</div>
+  </div>
+</div>
+
+<div class="two-col">
+  <!-- Courses -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">My Courses</h2>
+    </div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr><th>Course</th><th>Teacher</th><th>Marks</th><th>Attendance</th></tr>
+        </thead>
+        <tbody>
+          {% for c in courses %}
+          <tr>
+            <td>
+              <div class="fw-600">{{ c.course_code }}</div>
+              <div class="text-muted text-small">{{ c.course_name }}</div>
+            </td>
+            <td>{{ c.teacher_name }}</td>
+            <td><span class="badge">{{ "%.1f"|format(c.total) }}%</span></td>
+            <td>
+              <span class="badge {% if c.att_pct and c.att_pct < 75 %}badge-red{% else %}badge-green{% endif %}">
+                {{ "%.1f"|format(c.att_pct) if c.att_pct else '0.0' }}%
+              </span>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" class="text-muted text-center" style="padding:2rem">No courses enrolled.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Announcements -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Recent Announcements</h2>
+    </div>
+    {% for a in announcements %}
+    <div class="announcement-item">
+      <div class="ann-course">{{ a.course }} &nbsp;·&nbsp; {{ a.teacher }}</div>
+      <div class="ann-title">{{ a.title }}</div>
+      <div class="ann-body">{{ a.body }}</div>
+      <div class="ann-date text-muted text-small">{{ a.created_at.strftime('%d %b %Y') }}</div>
+    </div>
+    {% else %}
+    <p class="text-muted text-center" style="padding:2rem">No announcements yet.</p>
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}

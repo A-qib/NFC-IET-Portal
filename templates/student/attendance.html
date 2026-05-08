@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}My Attendance{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">My Attendance</h1>
+  <p class="page-sub">Day-by-day breakdown for all subjects</p>
+</div>
+
+{% for s in subjects %}
+<div class="card" style="margin-bottom:1.25rem">
+  <div class="card-header">
+    <div>
+      <h2 class="card-title">{{ s.course_code }} — {{ s.course_name }}</h2>
+      <p class="text-muted text-small">{{ s.teacher_name }}</p>
+    </div>
+    <span class="badge {% if s.attendance_status == 'SHORTAGE' %}badge-red{% else %}badge-green{% endif %}" style="font-size:13px;padding:6px 14px">
+      {{ "%.1f"|format(s.attendance_pct) if s.attendance_pct else '0.0' }}%
+      {% if s.attendance_status == 'SHORTAGE' %} ⚠ SHORTAGE{% endif %}
+    </span>
+  </div>
+
+  <div class="att-stats">
+    <div class="att-stat">
+      <div class="att-val">{{ s.total_classes }}</div>
+      <div class="att-lbl">Total Classes</div>
+    </div>
+    <div class="att-stat green">
+      <div class="att-val">{{ s.present_count }}</div>
+      <div class="att-lbl">Present</div>
+    </div>
+    <div class="att-stat red">
+      <div class="att-val">{{ s.absent_count }}</div>
+      <div class="att-lbl">Absent</div>
+    </div>
+    <div class="att-stat yellow">
+      <div class="att-val">{{ s.late_count }}</div>
+      <div class="att-lbl">Late</div>
+    </div>
+  </div>
+
+  {% if details[s.enrollment_id] %}
+  <div class="att-days">
+    {% for d in details[s.enrollment_id] %}
+    <div class="att-day {{ d.status }}">
+      <div class="att-day-date">{{ d.date.strftime('%d %b') }}</div>
+      <div class="att-day-status">{{ d.status[0].upper() }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endfor %}
+
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">Admin Dashboard</h1>
+  <p class="page-sub">NFC IET Portal Overview</p>
+</div>
+
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="stat-value">{{ total_students }}</div>
+    <div class="stat-label">Total Students</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">{{ total_teachers }}</div>
+    <div class="stat-label">Teachers</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">{{ total_courses }}</div>
+    <div class="stat-label">Courses</div>
+  </div>
+  <div class="stat-card {% if pending_fees > 0 %}stat-red{% else %}stat-green{% endif %}">
+    <div class="stat-value">{{ pending_fees }}</div>
+    <div class="stat-label">Pending Fees</div>
+  </div>
+</div>
+
+<div class="two-col">
+  <!-- Shortage Alerts -->
+  <div class="card">
+    <div class="card-header"><h2 class="card-title">⚠ Shortage Alerts</h2></div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Student</th><th>Course</th><th>Attendance</th></tr></thead>
+        <tbody>
+          {% for s in shortages %}
+          <tr>
+            <td>
+              <div class="fw-600">{{ s.student_name }}</div>
+              <div class="text-muted text-small">{{ s.roll_no }}</div>
+            </td>
+            <td>{{ s.course_code }}</td>
+            <td><span class="badge badge-red">{{ s.attendance_pct }}%</span></td>
+          </tr>
+          {% else %}
+          <tr><td colspan="3" class="text-muted text-center" style="padding:2rem">No shortages 🎉</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Recent Students -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Recent Students</h2>
+      <a href="{{ url_for('admin_students') }}" class="btn-sm">View All</a>
+    </div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Name</th><th>Roll No</th><th>Program</th><th>Fee</th></tr></thead>
+        <tbody>
+          {% for st in recent_students %}
+          <tr>
+            <td>{{ st.name }}</td>
+            <td><code>{{ st.roll_no }}</code></td>
+            <td>{{ st.program }}</td>
+            <td><span class="badge {% if st.fee_status=='paid' %}badge-green{% elif st.fee_status=='overdue' %}badge-red{% else %}badge-yellow{% endif %}">{{ st.fee_status or 'N/A' }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

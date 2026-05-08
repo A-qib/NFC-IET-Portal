@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Fee Records{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">Fee Records</h1>
+  <p class="page-sub">Your semester-wise fee history</p>
+</div>
+
+<div class="card">
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr><th>Semester</th><th>Year</th><th>Amount</th><th>Due Date</th><th>Status</th><th>Paid On</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        {% for f in fees %}
+        <tr>
+          <td>{{ f.semester }}</td>
+          <td>{{ f.year }}</td>
+          <td>Rs. {{ "{:,.0f}".format(f.amount) }}</td>
+          <td>{{ f.due_date.strftime('%d %b %Y') }}</td>
+          <td>
+            <span class="badge {% if f.status=='paid' %}badge-green{% elif f.status=='overdue' %}badge-red{% else %}badge-yellow{% endif %}">
+              {{ f.status | upper }}
+            </span>
+          </td>
+          <td>{{ f.paid_at.strftime('%d %b %Y') if f.paid_at else '—' }}</td>
+          <td>
+            <a href="{{ url_for('download_voucher', fee_id=f.fee_id) }}" class="btn-sm">⬇ Voucher</a>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="text-muted text-center" style="padding:2rem">No fee records found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

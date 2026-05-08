@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Fee Records{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">Fee Management</h1>
+</div>
+
+<div class="two-col">
+  <div class="card">
+    <div class="card-header"><h2 class="card-title">Add Fee Record</h2></div>
+    <form method="POST" style="padding:1rem;display:flex;flex-direction:column;gap:1rem">
+      <input type="hidden" name="action" value="add_fee"/>
+      <div class="form-group">
+        <label>Student</label>
+        <select name="student_id" required>
+          {% for st in students %}<option value="{{ st.student_id }}">{{ st.roll_no }} — {{ st.name }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Semester</label>
+        <select name="semester" required>
+          <option>Fall</option><option>Spring</option><option>Summer</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Year</label><input type="number" name="year" value="2025" required/></div>
+      <div class="form-group"><label>Amount (Rs.)</label><input type="number" name="amount" value="35000" required/></div>
+      <div class="form-group"><label>Due Date</label><input type="date" name="due_date" required/></div>
+      <button type="submit" class="btn-primary">Add Record</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h2 class="card-title">All Fee Records</h2></div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Student</th><th>Semester</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody>
+          {% for f in fees %}
+          <tr>
+            <td>
+              <div class="fw-600">{{ f.student_name }}</div>
+              <div class="text-muted text-small">{{ f.roll_no }}</div>
+            </td>
+            <td>{{ f.semester }} {{ f.year }}</td>
+            <td>Rs. {{ "{:,.0f}".format(f.amount) }}</td>
+            <td><span class="badge {% if f.status=='paid' %}badge-green{% elif f.status=='overdue' %}badge-red{% else %}badge-yellow{% endif %}">{{ f.status|upper }}</span></td>
+            <td>
+              {% if f.status != 'paid' %}
+              <form method="POST">
+                <input type="hidden" name="action" value="mark_paid"/>
+                <input type="hidden" name="fee_id" value="{{ f.fee_id }}"/>
+                <button type="submit" class="btn-sm">Mark Paid</button>
+              </form>
+              {% else %}
+              <span class="text-muted text-small">✓ Paid</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

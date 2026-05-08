@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">Notifications</h1>
+  <p class="page-sub">{{ notifications|length }} total</p>
+</div>
+
+<div class="card">
+  {% for n in notifications %}
+  <div class="notif-item {% if not n.is_read %}notif-unread{% endif %}">
+    <div class="notif-icon notif-{{ n.type }}">
+      {% if n.type == 'warning' %}⚠{% elif n.type == 'success' %}✓{% elif n.type == 'error' %}✕{% else %}ℹ{% endif %}
+    </div>
+    <div class="notif-body">
+      <div class="notif-title">{{ n.title }}</div>
+      <div class="notif-msg">{{ n.message }}</div>
+      <div class="notif-time text-muted text-small">{{ n.created_at.strftime('%d %b %Y, %I:%M %p') }}</div>
+    </div>
+  </div>
+  {% else %}
+  <div style="padding:2rem;text-align:center;color:var(--text3)">
+    No notifications yet 🎉
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

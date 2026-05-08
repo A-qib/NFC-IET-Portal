@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}NFC IET Portal{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+{% if session.user_id %}
+<!-- Mobile hamburger -->
+<button class="hamburger" id="hamburger" onclick="toggleSidebar()" aria-label="Toggle menu">☰</button>
+<div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">N</div>
+    <div>
+      <div class="logo-title">NFC IET</div>
+      <div class="logo-sub">Student Portal</div>
+    </div>
+  </div>
+
+  <div class="sidebar-role">{{ session.role }}</div>
+
+  <nav class="sidebar-nav">
+    {% if session.role == 'student' %}
+      <a href="{{ url_for('student_dashboard') }}"  class="nav-link {% if request.endpoint=='student_dashboard' %}active{% endif %}"><span class="nav-icon">⊞</span> Dashboard</a>
+      <a href="{{ url_for('student_attendance') }}" class="nav-link {% if request.endpoint=='student_attendance' %}active{% endif %}"><span class="nav-icon">◷</span> Attendance</a>
+      <a href="{{ url_for('student_grades') }}"     class="nav-link {% if request.endpoint=='student_grades' %}active{% endif %}"><span class="nav-icon">◈</span> Grades</a>
+      <a href="{{ url_for('student_timetable') }}"  class="nav-link {% if request.endpoint=='student_timetable' %}active{% endif %}"><span class="nav-icon">▦</span> Timetable</a>
+      <a href="{{ url_for('student_fee') }}"        class="nav-link {% if request.endpoint=='student_fee' %}active{% endif %}"><span class="nav-icon">◎</span> Fee</a>
+    {% elif session.role == 'teacher' %}
+      <a href="{{ url_for('teacher_dashboard') }}"     class="nav-link {% if request.endpoint=='teacher_dashboard' %}active{% endif %}"><span class="nav-icon">⊞</span> Dashboard</a>
+      <a href="{{ url_for('teacher_announcements') }}" class="nav-link {% if request.endpoint=='teacher_announcements' %}active{% endif %}"><span class="nav-icon">◈</span> Announcements</a>
+    {% elif session.role == 'admin' %}
+      <a href="{{ url_for('admin_dashboard') }}" class="nav-link {% if request.endpoint=='admin_dashboard' %}active{% endif %}"><span class="nav-icon">⊞</span> Dashboard</a>
+      <a href="{{ url_for('admin_students') }}"  class="nav-link {% if request.endpoint=='admin_students' %}active{% endif %}"><span class="nav-icon">◷</span> Students</a>
+      <a href="{{ url_for('admin_teachers') }}"  class="nav-link {% if request.endpoint=='admin_teachers' %}active{% endif %}"><span class="nav-icon">◈</span> Teachers</a>
+      <a href="{{ url_for('admin_courses') }}"   class="nav-link {% if request.endpoint=='admin_courses' %}active{% endif %}"><span class="nav-icon">▤</span> Courses</a>
+      <a href="{{ url_for('admin_sections') }}"  class="nav-link {% if request.endpoint=='admin_sections' %}active{% endif %}"><span class="nav-icon">▦</span> Sections</a>
+      <a href="{{ url_for('admin_enrollments') }}" class="nav-link {% if request.endpoint=='admin_enrollments' %}active{% endif %}"><span class="nav-icon">◉</span> Enrollments</a>
+      <a href="{{ url_for('admin_fees') }}"      class="nav-link {% if request.endpoint=='admin_fees' %}active{% endif %}"><span class="nav-icon">◎</span> Fee Records</a>
+    {% endif %}
+  </nav>
+
+  <div class="sidebar-bottom">
+    <a href="{{ url_for('notifications') }}" class="nav-link {% if request.endpoint=='notifications' %}active{% endif %}">
+      <span class="nav-icon">🔔</span> Notifications
+      <span class="notif-badge" id="notif-count" style="display:none"></span>
+    </a>
+    <a href="{{ url_for('profile') }}" class="nav-link {% if request.endpoint=='profile' %}active{% endif %}">
+      <span class="nav-icon">◉</span> Profile
+    </a>
+    <a href="{{ url_for('logout') }}" class="logout-btn">↩ Logout</a>
+  </div>
+</aside>
+{% endif %}
+
+<main class="main {% if not session.user_id %}full{% endif %}">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for cat, msg in messages %}
+        <div class="alert alert-{{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+
+<script>
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('open');
+}
+
+{% if session.user_id %}
+function updateNotifCount() {
+  fetch('/notifications/count')
+    .then(r => r.json())
+    .then(data => {
+      const b = document.getElementById('notif-count');
+      if (b) {
+        if (data.count > 0) { 
+          b.textContent = data.count > 99 ? '99+' : data.count; 
+          b.style.display = 'inline-flex'; 
+        }
+        else { b.style.display = 'none'; }
+      }
+    }).catch(() => {});
+}
+updateNotifCount();
+setInterval(updateNotifCount, 30000);
+{% endif %}
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

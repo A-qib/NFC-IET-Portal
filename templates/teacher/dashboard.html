@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Teacher Dashboard{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Welcome, {{ teacher.name }} 👋</h1>
+    <p class="page-sub">{{ teacher.designation }} &nbsp;·&nbsp; {{ teacher.department }}</p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title">My Sections</h2>
+  </div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr><th>Course</th><th>Section</th><th>Semester</th><th>Students</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for s in sections %}
+        <tr>
+          <td>
+            <div class="fw-600">{{ s.course_code }}</div>
+            <div class="text-muted text-small">{{ s.course_name }}</div>
+          </td>
+          <td>Section {{ s.section_label }}</td>
+          <td>{{ s.semester }} {{ s.year }}</td>
+          <td><span class="badge">{{ s.enrolled_students }}</span></td>
+          <td>
+            <a href="{{ url_for('teacher_attendance', section_id=s.section_id) }}" class="btn-sm">Mark Attendance</a>
+            <a href="{{ url_for('teacher_grades', section_id=s.section_id) }}" class="btn-sm">Enter Grades</a>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="text-muted text-center" style="padding:2rem">No sections assigned yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

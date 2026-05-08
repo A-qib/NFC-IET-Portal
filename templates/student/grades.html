@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block title %}Academic Report{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Academic Report</h1>
+    <p class="page-sub">{{ student.name }} &nbsp;·&nbsp; {{ student.roll_no }}</p>
+  </div>
+  <div class="stat-card" style="min-width:140px;text-align:center;margin:0">
+    <div class="stat-value" style="font-size:36px">{{ "%.2f"|format(cgpa) }}</div>
+    <div class="stat-label">CGPA</div>
+  </div>
+</div>
+
+<!-- Grade Chart -->
+<div class="card" style="margin-bottom:1.5rem">
+  <div class="card-header"><h2 class="card-title">Grade Breakdown</h2></div>
+  <div class="chart-container">
+    <canvas id="gradeChart"></canvas>
+  </div>
+</div>
+
+<div class="card">
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Course</th><th>Teacher</th><th style="text-align:center">Cr.</th>
+          <th style="text-align:center">Mid /30</th><th style="text-align:center">Final /50</th><th style="text-align:center">Assign /20</th>
+          <th style="text-align:center">Total</th><th style="text-align:center">Grade</th><th style="text-align:center">Pts</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for g in grades %}
+        <tr>
+          <td>
+            <div class="fw-600">{{ g.code }}</div>
+            <div class="text-muted text-small">{{ g.course_name }}</div>
+          </td>
+          <td>{{ g.teacher }}</td>
+          <td style="text-align:center"><span class="badge">{{ g.credit_hours }}</span></td>
+          <td style="text-align:center">{{ "%.1f"|format(g.mid_marks) }}</td>
+          <td style="text-align:center">{{ "%.1f"|format(g.final_marks) }}</td>
+          <td style="text-align:center">{{ "%.1f"|format(g.assignment_marks) }}</td>
+          <td style="text-align:center"><b>{{ "%.1f"|format(g.total) }}</b></td>
+          <td style="text-align:center">
+            <span class="badge {% if g.letter_grade == 'F' %}badge-red{% elif g.letter_grade.startswith('A') %}badge-green{% else %}badge{% endif %}">
+              {{ g.letter_grade }}
+            </span>
+          </td>
+          <td style="text-align:center">{{ g.grade_points }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="9" class="text-muted text-center" style="padding:2rem">No grades yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+fetch('/student/grades/chart-data')
+  .then(r => r.json())
+  .then(data => {
+    new Chart(document.getElementById('gradeChart'), {
+      type: 'bar',
+      data: {
+        labels: data.labels,
+        datasets: [
+          { label: 'Mid (/30)',         data: data.mid,         backgroundColor: '#1e40af', borderRadius: 4 },
+          { label: 'Final (/50)',        data: data.final,       backgroundColor: '#2d6a4f', borderRadius: 4 },
+          { label: 'Assignments (/20)', data: data.assignments, backgroundColor: '#b45309', borderRadius: 4 },
+        ]
+      },
+      options: {
+        responsive: true, 
+        maintainAspectRatio: false,
+        plugins: { 
+          legend: { 
+            position: 'top',
+            labels: { 
+              font: { family: 'Inter', size: 12 },
+              usePointStyle: true,
+              padding: 20
+            } 
+          } 
+        },
+        scales: {
+          x: { 
+            ticks: { font: { family: 'Inter', size: 11 }, color: '#5c5c5c' }, 
+            grid: { display: false } 
+          },
+          y: { 
+            ticks: { font: { family: 'Inter', size: 11 }, color: '#8a8a8a' }, 
+            grid: { color: '#f0ede8', drawBorder: false }, 
+            beginAtZero: true 
+          }
+        }
+      }
+    });
+  });
+</script>
+
+{% endblock %}

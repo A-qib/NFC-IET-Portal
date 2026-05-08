@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}My Timetable{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">My Timetable</h1>
+  <p class="page-sub">Weekly class schedule</p>
+</div>
+
+{% set days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'] %}
+{% for day in days %}
+  {% set day_classes = timetable | selectattr('day','equalto', day) | list %}
+  {% if day_classes %}
+  <div class="card" style="margin-bottom:1rem">
+    <div class="card-header">
+      <h2 class="card-title">{{ day }}</h2>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;padding:1rem">
+      {% for cls in day_classes %}
+      <div class="timetable-slot">
+        <div class="tt-time">{{ cls.start_time }} – {{ cls.end_time }}</div>
+        <div class="tt-course">{{ cls.code }}</div>
+        <div class="tt-name">{{ cls.course_name }}</div>
+        <div class="tt-meta">{{ cls.teacher }} &nbsp;·&nbsp; {{ cls.room }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+{% endfor %}
+
+{% if not timetable %}
+<div class="card"><p class="text-muted text-center" style="padding:2rem">No timetable set yet.</p></div>
+{% endif %}
+
+{% endblock %}
