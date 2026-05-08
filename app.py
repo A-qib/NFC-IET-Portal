@@ -1062,3 +1062,16 @@ def admin_enrollments():
 # ══════════════════════════════════════════════
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False, threaded=False)
+
+@app.route('/init-db')
+def init_db():
+    try:
+        db  = get_db()
+        cur = db.cursor()
+        cur.execute("SHOW TABLES")
+        tables = cur.fetchall()
+        cur.close()
+        db.close()
+        return f"Connected! Tables: {tables}"
+    except Exception as e:
+        return f"Error: {e}"
