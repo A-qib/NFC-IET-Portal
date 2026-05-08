@@ -1078,3 +1078,13 @@ def init_db():
         return f"Connected! Tables: {tables}"
     except Exception as e:
         return f"Error: {e}"
+
+
+@app.route('/check-env')
+def check_env():
+    return {
+        'DB_HOST': os.environ.get('DB_HOST', 'NOT SET'),
+        'DB_USER': os.environ.get('DB_USER', 'NOT SET'),
+        'DB_NAME': os.environ.get('DB_NAME', 'NOT SET'),
+        'DB_PORT': os.environ.get('DB_PORT', 'NOT SET'),
+    }
