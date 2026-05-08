@@ -1,0 +1,6 @@
+flask
+pymysql
+reportlab
+pillow
+werkzeug
+gunicorn
