@@ -21,14 +21,16 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXT
 
 # ── Database ───────────────────────────────────
+import os
+
 DB_CONFIG = {
-    'host':     'localhost',
-    'user':     'root',
-    'password': 'aqib913114',   # ← your MySQL password
-    'database': 'nfc_portal',
+    'host':     os.environ.get('DB_HOST', 'localhost'),
+    'user':     os.environ.get('DB_USER', 'root'),
+    'password': os.environ.get('DB_PASSWORD', 'aqib913114'),
+    'database': os.environ.get('DB_NAME', 'nfc_portal'),
+    'port':     int(os.environ.get('DB_PORT', 3306)),
     'cursorclass': pymysql.cursors.DictCursor
 }
-
 def get_db():
     return pymysql.connect(**DB_CONFIG)
 
@@ -1061,7 +1063,8 @@ def admin_enrollments():
 #  RUN
 # ══════════════════════════════════════════════
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False, threaded=False)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False, threaded=False)
 
 @app.route('/init-db')
 def init_db():
